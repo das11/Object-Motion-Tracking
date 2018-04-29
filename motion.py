@@ -13,7 +13,7 @@ args = vars(ap.parse_args())
 greenLower = (0, 19, 10)
 greenUpper = (180, 5, 8)
 
-pts = deque(maxlen = args["buffer"])
+pts = deque(maxlen = 32)
 
 counter = 0
 (dX, dY) = (0,0)
