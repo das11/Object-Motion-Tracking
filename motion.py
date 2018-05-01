@@ -6,12 +6,12 @@ import cv2
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video")
-ap.add_argument("-b", "--buffer")
+ap.add_argument("-b", "--buffer", default = 32)
 
 args = vars(ap.parse_args())
 
-greenLower = (0, 19, 10)
-greenUpper = (180, 5, 8)
+greenLower = (171,  92,  95)
+greenUpper = (179, 206, 255)
 
 pts = deque(maxlen = 32)
 
@@ -23,6 +23,17 @@ if not args.get("video", False):
 	camera = cv2.VideoCapture(0)
 else:
 	camera = cv2.VideoCapture(args["video"])
+
+img = np.zeros((512,512,3), np.uint8);
+
+def poly(point) : 
+
+	i = 0
+	init = point
+	++i
+
+	if i > 0 :
+		cv2.line(img, init, point, Scalar(0, 255, 0), 1, CV_AA)
 
 
 while True:
@@ -40,6 +51,8 @@ while True:
 	mask = cv2.erode(mask, None, iterations=2)
 	mask = cv2.dilate(mask, None, iterations=2)
 
+	cv2.imshow("fr", mask)
+
 	cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 	center = None
 
@@ -55,12 +68,13 @@ while True:
 				(0, 255, 255), 2)
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
 			pts.appendleft(center)
+			poly(pts)
 
 	for i in np.arange(1, len(pts)):
 		if pts[i-1] is None or pts[i] is None:
 			continue
 
-		if counter >= 10 and i == 1 and pts[-10] is not None:
+		if counter >= 10 and i == 10 and pts[i-10] is not None:
 			
 			dX = pts[-10][0] - pts[i][0]
 			dY = pts[-10][1] - pts[i][1]
@@ -92,15 +106,10 @@ while True:
 	key = cv2.waitKey(1) & 0xFF
 	counter += 1
 	
- 
-	
 	if key == ord("q"):
+		print(c)
 		break
- 
 
 camera.release()
 cv2.destroyAllWindows()
 
-
-
-print(args)
