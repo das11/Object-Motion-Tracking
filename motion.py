@@ -10,8 +10,11 @@ ap.add_argument("-b", "--buffer", default = 32)
 
 args = vars(ap.parse_args())
 
-greenLower = (171,  92,  95)
-greenUpper = (179, 206, 255)
+# greenLower = (171,  92,  95)
+# greenUpper = (179, 206, 255)
+
+greenLower = (0, 171, 76)
+greenUpper = (179, 249, 193)
 
 pts = deque(maxlen = 32)
 
@@ -26,15 +29,21 @@ else:
 
 img = np.zeros((512,512,3), np.uint8);
 
-def poly(point) : 
+glob_flag = 0
+init_point = None
+print(glob_flag)
+def poly(point, im) : 
 
-	i = 0
-	init = point
-	++i
+	global glob_flag, init_point
+	print(glob_flag)
 
-	if i > 0 :
-		cv2.line(img, init, point, Scalar(0, 255, 0), 1, CV_AA)
-
+	if glob_flag == 0 :
+		init_point = point
+		glob_flag += 1
+	else : 
+		cv2.line(img, init_point, point, (22, 0, 250), 4)
+		cv2.imshow("im", img)
+		init_point = point
 
 while True:
 
@@ -68,7 +77,7 @@ while True:
 				(0, 255, 255), 2)
 			cv2.circle(frame, center, 5, (0, 0, 255), -1)
 			pts.appendleft(center)
-			poly(pts)
+			
 
 	for i in np.arange(1, len(pts)):
 		if pts[i-1] is None or pts[i] is None:
@@ -94,6 +103,7 @@ while True:
 
 			thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
 			cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
+			poly(pts[i], img)
  
 	cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
 		0.65, (0, 0, 255), 3)
@@ -107,7 +117,6 @@ while True:
 	counter += 1
 	
 	if key == ord("q"):
-		print(c)
 		break
 
 camera.release()
