@@ -13,8 +13,13 @@ args = vars(ap.parse_args())
 # greenLower = (171,  92,  95)
 # greenUpper = (179, 206, 255)
 
-greenLower = (0, 171, 76)
-greenUpper = (179, 249, 193)
+
+greenLower = (93, 103, 123)
+greenUpper = (115, 128, 165)
+
+
+# greenLower = (0, 171, 76)
+# greenUpper = (179, 249, 193)
 
 pts = deque(maxlen = 32)
 
@@ -35,7 +40,7 @@ print(glob_flag)
 def poly(point, im) : 
 
 	global glob_flag, init_point
-	print(glob_flag)
+	# print(glob_flag)
 
 	if glob_flag == 0 :
 		init_point = point
@@ -87,6 +92,8 @@ while True:
 			
 			dX = pts[-10][0] - pts[i][0]
 			dY = pts[-10][1] - pts[i][1]
+
+			print(str(pts[-10][0]) + "\t" + str(pts[-10][1]))
 			(dirX, dirY) = ("", "")
  
 			if np.abs(dX) > 20:
