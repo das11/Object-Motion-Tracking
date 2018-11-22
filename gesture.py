@@ -7,9 +7,9 @@ import math
 # parameters
 cap_region_x_begin=0.5  # start point/total width
 cap_region_y_end=0.8  # start point/total width
-threshold = 60  #  BINARY threshold
+threshold = 90  #  BINARY threshold
 blurValue = 41  # GaussianBlur parameter
-bgSubThreshold = 50
+bgSubThreshold = 70
 learningRate = 0
 
 # variables
@@ -81,8 +81,12 @@ while camera.isOpened():
         # convert the image into binary image
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (blurValue, blurValue), 0)
+
+        test_mean = cv2.mean(gray)
+        print(test_mean)
         cv2.imshow('blur', blur)
         ret, thresh = cv2.threshold(blur, threshold, 255, cv2.THRESH_BINARY)
+        # thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,5, 80)
         cv2.imshow('ori', thresh)
 
 
