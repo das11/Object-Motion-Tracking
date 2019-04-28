@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import copy
 import math
+
+import adapter
 #from appscript import app
 
 # parameters
@@ -36,7 +38,7 @@ def calculateFingers(res,drawing):  # -> finished bool, cnt: finger count
     hull = cv2.convexHull(res, returnPoints=False)
     if len(hull) > 3:
         defects = cv2.convexityDefects(res, hull)
-        if type(defects) != type(None):  # avoid crashing.   (BUG not found)
+        if type(defects) != type(None):  # avoid crashing
 
             cnt = 0
             for i in range(defects.shape[0]):  # calculate the angle
@@ -82,12 +84,26 @@ while camera.isOpened():
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (blurValue, blurValue), 0)
 
-        test_mean = cv2.mean(gray)
-        print(test_mean)
+# 
+        # print((adapter.estimate_intensity(gray))[0])
         cv2.imshow('blur', blur)
-        ret, thresh = cv2.threshold(blur, threshold, 255, cv2.THRESH_BINARY)
+
+        avg_intensity = (adapter.estimate_intensity(gray))[0]
+        print("avg int :: ", avg_intensity)
+        
+
+        test_threshold = adapter.detect_thresh(int(avg_intensity))
+        print(" test thresh :: " , test_threshold)
+
+        if test_threshold is not None:
+            buffer_thresh = int(test_threshold)
+            print(" :::: " , buffer_thresh)
+        else :
+            buffer_thresh = 60            
+
+        ret, thresh = cv2.threshold(blur, buffer_thresh, 255, cv2.THRESH_BINARY)
         # thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,5, 80)
-        cv2.imshow('ori', thresh)
+        cv2.imshow('binary', thresh)
 
 
         # get the coutours
@@ -112,11 +128,22 @@ while camera.isOpened():
             isFinishCal,cnt = calculateFingers(res,drawing)
             if triggerSwitch is True:
                 if isFinishCal is True and cnt <= 2:
-                    print (cnt)
+                    print (":::::::: ############# /n/n" , cnt)
                     #app('System Events').keystroke(' ')  # simulate pressing blank space
-                    
+
+        
+        if test_threshold == 90:
+            text = "Optimal"
+            cv2.putText(drawing, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 3)
+        elif test_threshold == 70:
+            text = "Medium"
+            cv2.putText(drawing, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 3)
+        elif test_threshold == 2:
+            text = "Low"
+            cv2.putText(drawing, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 3)
 
         cv2.imshow('output', drawing)
+       
 
     # Keyboard OP
     k = cv2.waitKey(10)
